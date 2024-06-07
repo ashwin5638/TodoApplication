@@ -5,11 +5,9 @@ const {open} = require('sqlite')
 const sqlite3 = require('sqlite3')
 const app = express()
 
-app.use(express.json())
-
-
 const dbPath = path.join(__dirname, 'todoApplication.db')
 
+app.use(express.json())
 let db = null
 
 const initializeDBAndServer = async () => {
@@ -51,7 +49,7 @@ app.get('/todos/', async (request, response) => {
   const {search_q = '', priority, status} = request.query
 
   switch (true) {
-    case hasPriorityAndStatusProperties(request.query): //if this is true then below query is taken in the code
+    case hasPriorityAndStatusProperties(request.query):
       getTodosQuery = `
    SELECT
     *
@@ -165,3 +163,15 @@ app.put('/todos/:todoId/', async (request, response) => {
   await db.run(updateTodoQuery)
   response.send(`${updateColumn} Updated`)
 })
+
+app.delete('/todos/:todoId/', async (request, response) => {
+  const {todoId} = request.params
+  const deleteTodo = `
+  DELETE FROM 
+   todo 
+   where 
+     todo_id = ${todoId};`
+  await db.run(deleteTodo)
+  response.send('Todo Deleted')
+})
+module.exports = app
